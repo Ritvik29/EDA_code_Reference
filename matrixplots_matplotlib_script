@@ -1,0 +1,37 @@
+fig = plt.figure()
+N = len(METRICS)*10 + 1
+N_SITES = 3
+fig,ax = plt.subplots(len(METRICS), N_SITES, sharex='col', sharey='row', figsize = (40,30))
+
+fig.suptitle(f'{ROOT_CAUSE}', fontsize=16)
+for i in range(len(METRICS)):
+    for j in range(len(INTERESTING_SITES_RECTIFIER[0:N_SITES])) :
+        site = INTERESTING_SITES_RECTIFIER[j]
+        metric = METRICS[i]
+        overridemetric = OVERRIDE_METRICS[i]
+        print(metric,site)
+
+        tickets_df = get_tickets_root_cause(ROOT_CAUSE, 
+                                    site)
+        tickets_df.index = pd.to_datetime(tickets_df.index.str.split('_').str[1])
+        temp = eval_4g_performance_w_ticket(
+        override_metrics=[overridemetric],
+        expressions=[metric],
+        tickets_df = tickets_df,
+        SCALE = 1
+        )
+        temp[metric].plot(ax = ax[i,j])
+        ax[i,j].tick_params(axis = 'x',labelsize = 20)
+        ax[i,j].tick_params(axis = 'y',labelsize = 20)
+   
+        temp[metric].plot(ax = ax[i,j])
+        vlines = list(temp[temp["ticket2"]>0].index)
+        for v in vlines:
+            ax[i,j].axvline(v)
+        #kwargs = {'labelsize': 10}
+        plt.setp(ax[i,j], ylabel=metric,xlabel = site)
+        #ax[j,i].set_title(site)
+        
+        ax[i,j].xaxis.label.set_size(10)
+        ax[i,j].yaxis.label.set_size(10)
+        
